@@ -161,7 +161,7 @@
     const n = SPREADS[state.key].pos.length;
     const k = state.picks.length;
     let t;
-    if (k < n) t = `덱에서 마음이 가는 카드를 ${n}장 골라 주세요. (${k}/${n})`;
+    if (k < n) t = `덱에서 마음이 가는 카드를 ${n}장 고르거나, 자동으로 뽑아 보세요. (${k}/${n})`;
     else if (state.flipped.size < n) t = '카드를 눌러 한 장씩 뒤집어 보세요.';
     else t = '모두 펼쳤습니다. 아래에서 자리별 풀이를 읽어 보세요.';
     $('status').textContent = t;
@@ -197,7 +197,24 @@
     $('together').hidden = true;
     $('tableActions').hidden = true;
     $('flipAll').hidden = false;
+    $('pickActions').hidden = false;
+    $('autoPick').disabled = false;
     updateStatus();
+  }
+
+  /* 남은 자리를 덱에서 무작위로 채운다. 이미 손으로 고른 카드는 그대로 둔다 */
+  function autoPick() {
+    const need = SPREADS[state.key].pos.length - state.picks.length;
+    const left = [...$('deck').querySelectorAll('.deck-card:not(.is-taken)')];
+    if (need <= 0 || !left.length) return;
+    $('autoPick').disabled = true;
+    const rnd = new Uint32Array(need);
+    crypto.getRandomValues(rnd);
+    const run = state.deck;
+    for (let k = 0; k < need; k += 1) {
+      const btn = left.splice(rnd[k] % left.length, 1)[0];
+      setTimeout(() => { if (state.deck === run) btn.click(); }, k * 160);
+    }
   }
 
   function pick(deckIndex) {
@@ -212,6 +229,7 @@
       `<span class="flip-inner"><span class="side back">${BACK_SVG}</span><span class="side front">${faceHTML(c)}</span></span></button>`;
     if (state.picks.length === n) {
       $('deck').classList.add('is-done');
+      $('pickActions').hidden = true;
       $('tableActions').hidden = false;
       $('layout').scrollIntoView({ block: 'center' });
     }
@@ -303,6 +321,8 @@
     const btn = e.target.closest('.flip');
     if (btn) flip(btn.dataset.pos);
   });
+
+  $('autoPick').addEventListener('click', autoPick);
 
   $('flipAll').addEventListener('click', () => {
     const rest = state.picks.map((_, i) => i).filter((i) => !state.flipped.has(i));
