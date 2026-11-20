@@ -199,6 +199,7 @@
     $('flipAll').hidden = false;
     $('pickActions').hidden = false;
     $('autoPick').disabled = false;
+    resetSave();
     updateStatus();
   }
 
@@ -256,6 +257,7 @@
 
     const done = state.flipped.size === n;
     if (done) $('flipAll').hidden = true;
+    if (done) showSave();
     if (done && n > 1) {
       $('together').innerHTML = togetherHTML(state.picks);
       $('together').hidden = false;
@@ -266,6 +268,40 @@
       setTimeout(() => target.scrollIntoView({ block: 'start' }), 700);
     }
   }
+
+  /* ── 리딩 일지에 저장 ──────────────── */
+  /* 허브의 journal.js(MoonHongJournal)가 있을 때만 저장 상자를 보인다. 못 불러오면 나머지는 그대로 동작한다 */
+  function resetSave() {
+    $('saveBox').hidden = true;
+    $('saveReading').disabled = false;
+    $('saveReading').textContent = '이 리딩 저장';
+    $('saveMsg').textContent = '';
+    $('saveMsg').classList.remove('is-bad');
+  }
+  function showSave() {
+    if (!window.MoonHongJournal) return;
+    $('saveQuestion').value = state.question;
+    $('saveMemo').value = '';
+    $('saveBox').hidden = false;
+  }
+  $('saveReading').addEventListener('click', () => {
+    const J = window.MoonHongJournal;
+    if (!J || state.flipped.size < state.picks.length) return;
+    const pos = positions();
+    const res = J.save({
+      deck: '타로카드',
+      deckId: 'tarot',
+      spread: SPREADS[state.key].name,
+      question: $('saveQuestion').value,
+      memo: $('saveMemo').value,
+      cards: state.picks.map((c, i) => ({ name: c.ko, position: pos[i][0], orientation: 'upright' }))
+    });
+    $('saveMsg').classList.toggle('is-bad', !res.ok);
+    if (!res.ok) { $('saveMsg').textContent = res.error; return; }
+    $('saveReading').disabled = true;
+    $('saveReading').textContent = '저장됨';
+    $('saveMsg').textContent = '리딩 일지에 저장했습니다.';
+  });
 
   /* ── 도감 ─────────────────────────── */
   const GROUPS = [['all', '전체'], ['major', '메이저'], ['w', '완드'], ['c', '컵'], ['s', '소드'], ['p', '펜타클']];

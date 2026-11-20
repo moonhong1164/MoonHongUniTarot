@@ -81,6 +81,24 @@
 
     <aside class="together" id="together" hidden></aside>
     <div class="readings" id="readings"></div>
+
+    <section class="save-box" id="saveBox" aria-labelledby="saveTitle" hidden>
+      <h3 id="saveTitle">이 리딩 저장</h3>
+      <p class="save-lead">질문과 메모를 남겨 두면 MoonHong 리딩 일지에서 다시 읽을 수 있습니다. 기록은 이 기기의 이 브라우저에만 남습니다.</p>
+      <div class="question">
+        <label for="saveQuestion">질문</label>
+        <input id="saveQuestion" type="text" maxlength="300" autocomplete="off" placeholder="이 리딩에 품었던 질문">
+      </div>
+      <div class="question">
+        <label for="saveMemo">메모 <span>(선택)</span></label>
+        <textarea id="saveMemo" rows="3" maxlength="4000" placeholder="떠오른 생각, 나중에 확인하고 싶은 점"></textarea>
+      </div>
+      <div class="save-actions">
+        <button type="button" class="primary" id="saveReading">이 리딩 저장</button>
+        <a class="ghost" href="https://moonhong1164.github.io/MoonHongCardSites/journal.html">리딩 일지 보기</a>
+      </div>
+      <p class="save-msg" id="saveMsg" role="status" aria-live="polite"></p>
+    </section>
   </section>
 
   <section class="library" id="library">
@@ -170,6 +188,7 @@
   <div id="dialogBody"></div>
 </dialog>
 
+<script src="https://moonhong1164.github.io/MoonHongCardSites/journal.js"></script>
 <script src="cards.js"></script>
 <script src="app.js"></script>
 </body>
